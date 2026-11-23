@@ -1,0 +1,20 @@
+[
+  {
+    "id": "wheat-rainfed",
+    "filename": "GAEZ-V5.RES05-SIX.HP0120.AGERA5.HIST.WHE.LRLM.tif",
+    "title": "Wheat suitability · Rain-fed",
+    "source_url": "https://storage.googleapis.com/fao-gismgr-gaez-v5-data/DATA/GAEZ-V5/MAPSET/RES05-SIX/GAEZ-V5.RES05-SIX.HP0120.AGERA5.HIST.WHE.LRLM.tif",
+    "units": "(source raster value)",
+    "scenario": "AgERA5 historical 2001–2020, low input management",
+    "interpretation": "FAO/IIASA GAEZ v5 at 5 arc-minute resolution. Modeled suitability context."
+  },
+  {
+    "id": "wheat-irrigated",
+    "filename": "GAEZ-V5.RES05-SIX.HP0120.AGERA5.HIST.WHE.LILM.tif",
+    "title": "Wheat suitability · Irrigated",
+    "source_url": "https://storage.googleapis.com/fao-gismgr-gaez-v5-data/DATA/GAEZ-V5/MAPSET/RES05-SIX/GAEZ-V5.RES05-SIX.HP0120.AGERA5.HIST.WHE.LILM.tif",
+    "units": "(source raster value)",
+    "scenario": "AgERA5 historical 2001–2020, low input management",
+    "interpretation": "FAO/IIASA GAEZ v5 at 5 arc-minute resolution. Modeled suitability context."
+  }
+]

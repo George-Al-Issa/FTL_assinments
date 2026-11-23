@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CroSafe | Admin dashboard</title>
+<link rel="stylesheet" href="/assets/leaflet/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="/assets/style.css">
+<script defer src="/assets/leaflet/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script type="module" src="/assets/admin.js"></script>
+<script type="module" src="/assets/workspace.js"></script>
+<script type="module" src="/assets/operations.js"></script>
+<script type="module" src="/assets/government.js"></script>
+</head>
+<body>
+<header><strong>CroSafe</strong><span>Directorate dashboard</span><span class="session-user" id="session-user"></span><button type="button" id="logout">Sign out</button></header>
+<nav class="navigation" aria-label="Admin navigation">
+<a href="#targets" data-ar="حدود الإنتاج">Crop limits</a><a href="#exposure" data-ar="المخاطر الجوية">Climate exposure</a><a href="#analysis" data-ar="التحليل">Analysis</a><a href="#plantings">Planting map</a><a href="#catalog">GAEZ catalog</a>
+<a href="#notifications">Notifications <span id="notice-count"></span></a><a href="#providers">API configuration</a>
+</nav>
+<main>
+<section data-view="targets">
+<h1 data-ar="حدود إنتاج المحاصيل">Crop production limits</h1>
+<p data-ar="حدّد سقف الإنتاج المتوقع لكل محصول ومحافظة وموسم. تُحتسب الزراعة المؤكدة فقط.">Set a projected production cap for each crop, governorate and season. Confirmed plantings count toward the cap.</p>
+<section class="panel">
+<form id="target-form"><div class="form-grid">
+<label><span data-ar="المحافظة">Governorate</span><select name="region" required></select></label>
+<label><span data-ar="المحصول">Crop</span><select name="crop" required></select></label>
+<label><span data-ar="بداية الموسم">Season starts</span><input name="starts" type="date" required></label>
+<label><span data-ar="نهاية الموسم">Season ends</span><input name="ends" type="date" required></label>
+<label><span data-ar="الحد بالطن">Limit in tonnes</span><input name="tonnes" type="number" min="0" step=".001" required></label>
+</div><button data-ar="احفظ الحد">Save limit</button></form>
+<p id="target-status" role="status"></p>
+<div class="table-scroll"><table><thead><tr><th data-ar="المحافظة">Governorate</th><th data-ar="المحصول">Crop</th><th data-ar="الموسم">Season</th><th data-ar="الحد بالطن">Cap (t)</th><th data-ar="الإنتاج المتوقع بالطن">Projected (t)</th><th data-ar="المتبقي بالطن">Remaining (t)</th><th data-ar="الإجراءات">Actions</th></tr></thead><tbody id="target-rows"></tbody></table></div>
+</section></section>
+<section data-view="exposure" hidden>
+<h1 data-ar="التعرّض للمخاطر الجوية">Climate exposure</h1>
+<p data-ar="افحص توقعات الطقس لأحدث زراعة مؤكدة في ما يصل إلى ٢٠ حقلاً. مساحة التعرّض تقدير استقصائي.">Screen the forecast for the latest confirmed planting on up to 20 fields. Exposed hectares are a screening estimate.</p>
+<section class="panel">
+<form id="exposure-form" class="toolbar">
+<label><span data-ar="المحافظة">Governorate</span><select name="region" required></select></label>
+<label><span data-ar="تاريخ حصر الزراعة">Plantings as of</span><input name="day" type="date" required></label>
+<button data-ar="افحص المخاطر">Screen forecast</button></form>
+<button type="button" id="exposure-publish" hidden data-ar="أعد الفحص وأرسل تنبيهات للمزارعين">Recheck and notify farmers</button>
+<p id="exposure-status" role="status"></p><div id="exposure-events"></div>
+</section>
+<section class="panel">
+<h2 data-ar="عتبات التنبيه">Alert thresholds</h2>
+<form id="policy-form"><div class="form-grid">
+<label><span data-ar="الحرارة (°م)">Heat (°C)</span><input type="number" name="heat_c" step="any" required></label>
+<label><span data-ar="الصقيع (°م)">Frost (°C)</span><input type="number" name="frost_c" step="any" required></label>
+<label><span data-ar="المطر الغزير (مم)">Heavy rain (mm)</span><input type="number" name="rain_mm" step="any" required></label>
+<label><span data-ar="أقصى هطول ليوم جاف (مم)">Dry-day maximum rain (mm)</span><input type="number" name="dry_mm" step="any" required></label>
+<label><span data-ar="عدد الأيام الجافة">Consecutive dry days</span><input type="number" name="dry_days" step="1" required></label>
+<label><span data-ar="عتبة المراجعة الإقليمية (هكتار)">Regional review threshold (ha)</span><input type="number" name="regional_review_ha" step="any" required></label>
+</div><button data-ar="احفظ العتبات">Save thresholds</button></form>
+<p id="policy-status" role="status"></p>
+</section></section>
+<section data-view="analysis" hidden>
+<h1>Planting analysis</h1><p>Explore reported plantings by crop and season.</p>
+<form id="analysis-filter" class="toolbar">
+<label>From <input name="start" type="date"></label>
+<label>To <input name="end" type="date"></label>
+<button>Apply dates</button><button type="button" id="analysis-reset">Clear</button>
+</form>
+<p id="analysis-status" role="status"></p>
+<div id="metrics" class="metrics"></div>
+<div class="layout analysis-tables">
+<section class="panel"><h2>Crop breakdown</h2><div class="table-scroll">
+<table><thead><tr><th>Crop</th><th>Plantings</th><th>Area (ha)</th></tr></thead><tbody id="analysis-crops"></tbody></table>
+</div></section>
+<section class="panel"><h2>Monthly planting activity</h2><div class="table-scroll">
+<table><thead><tr><th>Month</th><th>Plantings</th><th>Area (ha)</th></tr></thead><tbody id="analysis-months"></tbody></table>
+</div></section>
+</div>
+<section class="panel"><h2>Syria agricultural context</h2>
+<button type="button" id="national-load">Load World Bank indicator</button>
+<p id="national-status" role="status"></p>
+<div class="table-scroll"><table><thead><tr><th>Year</th><th>Published value</th></tr></thead>
+<tbody id="national-rows"></tbody></table></div>
+</section>
+</section>
+<section data-view="plantings" hidden>
+<h1>Planting map</h1>
+<p>Track the crops and field locations reported by customers.</p>
+<div class="toolbar">
+<label>Filter by crop <select id="crop"><option value="">All crops</option></select></label>
+<label>GAEZ v5 context <select id="layer"><option value="">No layer selected</option></select></label>
+</div>
+<p id="status" role="status"></p>
+<div class="layout">
+<section id="map" aria-label="Map of customer planting locations"></section>
+<section class="panel">
+<h2>Field details</h2><p id="details">Select a record on the map or in the table.</p>
+<h2>GAEZ v5</h2><p id="sample" role="status"></p>
+<a href="https://github.com/un-fao/gaezv5/wiki" rel="noreferrer">FAO methodology and layer guide</a>
+</section>
+</div>
+<section class="panel">
+<h2>Planting records</h2>
+<div class="table-scroll"><table><thead><tr><th>Crop</th><th>Customer</th><th>Planted</th><th>Area (ha)</th><th>Location</th></tr></thead><tbody id="rows"></tbody></table></div>
+<button type="button" id="more" hidden>Load more records</button>
+</section>
+</section>
+<section data-view="catalog" hidden>
+<h1>GAEZ v5 catalog</h1>
+<p>Browse official FAO folders, download source objects, and inspect GeoTIFF values at a coordinate.</p>
+<section class="panel">
+<form id="catalog-form" class="toolbar">
+<label>Catalog folder <input name="prefix" id="catalog-prefix" size="32" value="DATA/GAEZ-V5/" required></label>
+<button>Open folder</button><button type="button" id="catalog-up">Up one level</button>
+</form>
+<p id="catalog-status" role="status"></p>
+<div id="catalog-folders" class="folder-list"></div>
+<div class="table-scroll"><table><thead><tr><th>Object</th><th>Size</th><th>Action</th></tr></thead>
+<tbody id="catalog-objects"></tbody></table></div>
+<button type="button" id="catalog-next" hidden>Next page</button>
+</section>
+<section class="panel"><h2>Inspect raster at a point</h2>
+<form id="sample-form">
+<div class="form-grid">
+<label>Raster object <input name="name" id="catalog-object" required></label>
+<label>Latitude <input name="latitude" type="number" min="-90" max="90" value="35.1234" step="any" required></label>
+<label>Longitude <input name="longitude" type="number" min="-180" max="180" value="37.1234" step="any" required></label>
+</div><button>Read source value</button></form>
+<p id="catalog-sample" role="status"></p>
+</section></section>
+<section data-view="notifications" hidden>
+<h1>Notifications</h1>
+<section class="panel"><h2>Send an in-app notification</h2>
+<form id="notice-form">
+<div class="form-grid">
+<label>Recipient <select name="recipient" id="notice-recipient"><option value="">All customers</option></select></label>
+<label>Title <input name="title" maxlength="120" required></label>
+</div>
+<label>Message <textarea name="message" maxlength="1000" required rows="4"></textarea></label>
+<button>Send notification</button>
+</form><p id="send-status" role="status"></p></section>
+</section>
+<section data-view="providers" hidden>
+<h1>API configuration</h1><p>Manage weather, GAEZ and World Bank access for this server.</p>
+<section class="panel">
+<form id="provider-form">
+<div class="form-grid">
+<label>Weather mode <select name="weather_mode"><option value="fixture">Synthetic test data</option><option value="live">Live Open-Meteo</option></select></label>
+<label>Forecast days <input type="number" name="forecast_days" min="1" max="14" required></label>
+</div>
+<label class="checkbox"><input type="checkbox" name="weather_paid"> Use configured Open-Meteo customer API key</label>
+<p id="provider-key"></p>
+<label class="checkbox"><input type="checkbox" name="gaez_online"> Enable browsing and sampling the official GAEZ catalog</label>
+<label class="checkbox"><input type="checkbox" name="world_bank_online"> Enable World Bank national indicators</label>
+<label>Syria context indicator <select name="world_bank_indicator">
+<option value="AG.LND.AGRI.ZS">Agricultural land (% of land area)</option>
+<option value="AG.LND.ARBL.ZS">Arable land (% of land area)</option>
+<option value="AG.PRD.CROP.XD">Crop production index (2014–2016 = 100)</option>
+</select></label>
+<button>Save configuration</button>
+</form>
+<div class="toolbar provider-checks"><button type="button" data-check="weather">Check weather</button>
+<button type="button" data-check="gaez">Check GAEZ</button><button type="button" data-check="world-bank">Check World Bank</button></div>
+<p id="provider-status" role="status"></p>
+</section></section>
+</main>
+</body>
+</html>

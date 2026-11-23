@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CroSafe | Customer dashboard</title>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/leaflet/leaflet.css">
+<script defer src="/assets/leaflet/leaflet.js"></script>
+<script type="module" src="/assets/farm.js"></script>
+<script type="module" src="/assets/workspace.js"></script>
+</head>
+<body>
+<header><strong>CroSafe</strong><span>Customer dashboard</span><span class="session-user" id="session-user"></span><button type="button" id="logout">Sign out</button></header>
+<nav class="navigation" aria-label="Customer navigation">
+<a href="#fields" data-ar="حقولي">My fields</a>
+<a href="#plantings" data-ar="المحاصيل المؤكدة">Confirmed plantings</a>
+<a href="#notifications"><span data-ar="الإشعارات">Notifications</span> <span id="notice-count"></span></a></nav>
+<main>
+<section data-view="fields">
+<h1 data-ar="خطّط لزراعة حقلك">Plan your field</h1>
+<p data-ar="احفظ موقع الحقل ومساحته ثم اطّلع على المحاصيل المتاحة والتنبيهات الجوية.">Save your field location and area to view crop options and weather alerts.</p>
+<section class="panel">
+<h2 data-ar="إضافة حقل">Add a field</h2>
+<div id="farm-map" role="region" aria-label="Field location map"></div>
+<p data-ar="اضغط على الخريطة لتحديد الموقع أو أدخل الإحداثيات يدوياً.">Tap the map to drop a pin or enter coordinates below.</p>
+<form id="farm-field"><div class="form-grid">
+<label><span data-ar="اسم الحقل">Field name</span><input name="name" required maxlength="80"></label>
+<label><span data-ar="المساحة بالهكتار">Area in hectares</span><input name="area_ha" required type="number" min=".001" max="100000" step="any"></label>
+<label><span data-ar="خط العرض">Latitude</span><input name="latitude" required type="number" min="-90" max="90" step="any"></label>
+<label><span data-ar="خط الطول">Longitude</span><input name="longitude" required type="number" min="-180" max="180" step="any"></label>
+<label><span data-ar="مصدر المياه">Water supply</span><select name="irrigation"><option value="rainfed" data-ar="بعلي">Rain-fed</option><option value="irrigated" data-ar="مروي">Irrigated</option></select></label>
+</div><button data-ar="احفظ الحقل">Save field</button></form>
+<p id="farm-status" role="status"></p>
+</section>
+<section class="panel">
+<h2 data-ar="تقرير الحقل">Field report</h2>
+<form id="farm-report" class="toolbar">
+<label><span data-ar="الحقل">Field</span><select name="field" required></select></label>
+<label><span data-ar="تاريخ الزراعة">Planting date</span><input name="day" type="date" required></label>
+<button data-ar="اعرض التوصيات">Get recommendations</button>
+<button type="button" id="field-weather" data-ar="تنبيهات الطقس">Weather alerts</button>
+</form>
+<p id="report-status" role="status"></p><div id="crop-options" class="crop-options"></div>
+<p id="weather-status" role="status"></p><ul id="weather-events"></ul>
+</section></section>
+<section data-view="plantings" hidden>
+<h1 data-ar="المحاصيل المؤكدة">Confirmed plantings</h1>
+<section class="panel">
+<h2>My records</h2>
+<p id="records-status" role="status"></p>
+<div class="table-scroll"><table><thead><tr><th>Crop</th><th>Planted</th><th>Area (ha)</th><th>Location</th></tr></thead><tbody id="rows"></tbody></table></div>
+<button type="button" id="more" hidden>Load more records</button>
+</section>
+</section><section data-view="notifications" hidden><h1>Notifications</h1></section></main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    environment:
+      POSTGRES_DB: crosafe
+      POSTGRES_USER: crosafe
+      POSTGRES_PASSWORD: prototype-local
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/001_fields.sql:/docker-entrypoint-initdb.d/20-fields.sql:ro
+      - ./sql/002_plantings.sql:/docker-entrypoint-initdb.d/30-plantings.sql:ro
+      - ./sql/003_operations.sql:/docker-entrypoint-initdb.d/40-operations.sql:ro
+      - ./sql/004_planning.sql:/docker-entrypoint-initdb.d/50-planning.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U crosafe -d crosafe"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  migrate:
+    image: postgis/postgis:16-3.5
+    environment:
+      PGHOST: db
+      PGUSER: crosafe
+      PGDATABASE: crosafe
+      PGPASSWORD: prototype-local
+    volumes:
+      - ./sql:/migrations:ro
+    entrypoint: ["psql", "-X", "-v", "ON_ERROR_STOP=1"]
+    command: ["-f", "/migrations/001_fields.sql", "-f", "/migrations/002_plantings.sql", "-f", "/migrations/003_operations.sql", "-f", "/migrations/004_planning.sql"]
+    depends_on:
+      db:
+        condition: service_healthy
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://crosafe:prototype-local@db:5432/crosafe
+      CROSAFE_MODE: ${CROSAFE_MODE:-fixture}
+      CROSAFE_SECURE_COOKIE: ${CROSAFE_SECURE_COOKIE:-false}
+      OPEN_METEO_API_KEY: ${OPEN_METEO_API_KEY:-}
+      CROSAFE_ADMIN_USER: ${CROSAFE_ADMIN_USER:-admin}
+      CROSAFE_ADMIN_PASSWORD: ${CROSAFE_ADMIN_PASSWORD:-}
+      CROSAFE_CUSTOMER_USER: ${CROSAFE_CUSTOMER_USER:-customer}
+      CROSAFE_CUSTOMER_PASSWORD: ${CROSAFE_CUSTOMER_PASSWORD:-}
+      CROSAFE_EXTRA_CUSTOMERS: ${CROSAFE_EXTRA_CUSTOMERS:-}
+    volumes:
+      - ./data/gaez:/data/gaez:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+volumes:
+  pgdata:
