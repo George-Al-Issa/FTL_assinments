@@ -1,0 +1,19 @@
+{
+    "model_name": "Random Forest Regressor",
+    "target": "target_spei",
+    "features": [
+        "rainfall_lag1",
+        "temperature_lag1",
+        "et0_lag1",
+        "spei_lag1",
+        "spei_lag2",
+        "spei_lag3"
+    ],
+    "prediction": "Next month's SPEI-3",
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_split": 10,
+    "min_samples_leaf": 5,
+    "max_features": 0.8,
+    "random_state": 42
+}
