@@ -1,0 +1,14 @@
+{
+    "model_name": "XGBoost",
+    "project": "CroSafe - Syria Drought Prediction",
+    "forecast_horizon": "3 months",
+    "macro_f1": 0.2609162134359532,
+    "features_count": 30,
+    "classes": [
+        "Extreme Drought",
+        "Moderate Drought",
+        "No Drought",
+        "Severe Drought"
+    ],
+    "status": "Preliminary research model"
+}
