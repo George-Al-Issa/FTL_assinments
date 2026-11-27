@@ -31,6 +31,6 @@ def predict(input_data):
     }
 
 
-if name == "main":
+if__name__== "main":
     print("CroSafe drought prediction interface is ready.")
     print("Provide a DataFrame with the 30 trained model features to predict.")
