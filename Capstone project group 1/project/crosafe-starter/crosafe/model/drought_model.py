@@ -208,6 +208,110 @@ def load_nasa_power_data(data_dir):
 
 
 def get_model_features(bundle=None):
+def prepare_nasa_features(data, bundle=None):
+    """
+    Prepare NASA POWER data using the same feature structure
+    expected by the trained CroSafe drought model.
+
+    Calculates:
+    - PPT_3M: rolling 3-month precipitation sum.
+    - Lag features (1, 2, 3) for seven climate variables.
+    - Removes rows with missing model features.
+    """
+
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Input must be a pandas DataFrame.")
+
+    if data.empty:
+        raise ValueError("NASA data cannot be empty.")
+
+    required_columns = [
+        "LAT", "LON", "YEAR", "MONTH_NUM",
+        "WS2M", "RH2M", "T2M",
+        "T2M_MAX", "T2M_MIN", "PRECTOTCORR_SUM"
+    ]
+
+    missing = [
+        col for col in required_columns
+        if col not in data.columns
+    ]
+
+    if missing:
+        raise ValueError(
+            f"Missing NASA columns: {missing}"
+        )
+
+    data = data.copy()
+
+    # Ensure chronological order for each location.
+    if "DATE" in data.columns:
+        data = data.sort_values(
+            ["LAT", "LON", "DATE"]
+        )
+    else:
+        data = data.sort_values(
+            ["LAT", "LON", "YEAR", "MONTH_NUM"]
+        )
+
+    data = data.reset_index(drop=True)
+
+    # Calculate rolling 3-month precipitation sum.
+    data["PPT_3M"] = (
+        data.groupby(["LAT", "LON"])["PRECTOTCORR_SUM"]
+        .transform(
+            lambda values: values.rolling(
+                window=3,
+                min_periods=3
+            ).sum()
+        )
+    )
+
+    # Variables used to create lag features.
+    lag_variables = [
+        "WS2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN",
+        "PRECTOTCORR_SUM",
+        "PPT_3M"
+    ]
+
+    # Create lag features for 1, 2 and 3 months.
+    for variable in lag_variables:
+        for lag in [1, 2, 3]:
+            data[f"{variable}_lag{lag}"] = (
+                data.groupby(["LAT", "LON"])[variable]
+                .shift(lag)
+            )
+
+    # Get exact feature names from the trained model.
+    features = get_model_features(bundle)
+
+    # Check that all expected features exist.
+    missing_features = [
+        feature for feature in features
+        if feature not in data.columns
+    ]
+
+    if missing_features:
+        raise ValueError(
+            f"Missing model features after preparation: "
+            f"{missing_features}"
+        )
+
+    # Keep only rows with complete model features.
+    valid_data = data.dropna(
+        subset=features
+    ).copy()
+
+    if valid_data.empty:
+        raise ValueError(
+            "No valid rows remain after feature preparation."
+        )
+
+    # Return prepared data, including location and date columns.
+    return valid_data.reset_index(drop=True)    
     """Return the exact feature names expected by the model."""
 
     if bundle is None:
