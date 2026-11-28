@@ -322,13 +322,13 @@ def prepare_nasa_features(data, bundle=None):
     return valid_data.reset_index(drop=True)
 
 
-if__name__=="__main__":
+    if __name__ == "__main__":
 
-    bundle = load_drought_model()
+         bundle = load_drought_model()
 
-    print("Model loaded successfully!")
+         print("Model loaded successfully!")
 
-    print("\nModel features:")
+         print("\nModel features:")
 
     for index, feature in enumerate(
         get_model_features(bundle),
