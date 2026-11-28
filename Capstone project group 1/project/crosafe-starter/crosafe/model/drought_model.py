@@ -7,7 +7,7 @@ import pandas as pd
 
 
 # Directory containing this Python file and the trained model
-MODEL_DIR = Path(file).resolve().parent
+MODEL_DIR = Path(__file__).resolve().parent
 
 # Trained XGBoost model bundle
 MODEL_PATH = MODEL_DIR / "CroSafe_Final_Model.pkl"
@@ -322,7 +322,7 @@ def prepare_nasa_features(data, bundle=None):
     return valid_data.reset_index(drop=True)
 
 
-if name == "main":
+if__name__== "main":
 
     bundle = load_drought_model()
 
