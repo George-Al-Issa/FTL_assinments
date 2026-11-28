@@ -64,8 +64,7 @@ def distance_km(lat1, lon1, lat2, lon2):
 
     return 2 * radius * math.asin(math.sqrt(a))
 
-
- def irrigation(field: FieldRecord, forecast: list[ForecastDay]) -> Result:
+def irrigation(field: FieldRecord, forecast: list[ForecastDay]) -> Result:
     """Predict drought class using the CroSafe XGBoost model."""
 
     try:
