@@ -72,7 +72,7 @@ def predict(input_data):
     }
 
 
-if name == "main":
+if__name__== "main":
     print("CroSafe drought prediction interface is ready.")
 
     print(
