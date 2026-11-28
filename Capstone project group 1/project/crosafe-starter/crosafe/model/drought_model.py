@@ -7,7 +7,7 @@ import pandas as pd
 
 
 # Directory containing this Python file and the trained model
-MODEL_DIR = Path(__file__).resolve().parent
+MODEL_DIR = Path(file).resolve().parent
 
 # Trained XGBoost model bundle
 MODEL_PATH = MODEL_DIR / "CroSafe_Final_Model.pkl"
@@ -35,6 +35,15 @@ def load_drought_model():
     return joblib.load(MODEL_PATH)
 
 
+def get_model_features(bundle=None):
+    """Return the exact feature names expected by the model."""
+
+    if bundle is None:
+        bundle = load_drought_model()
+
+    return bundle["features"]
+
+
 def predict_drought(input_data, bundle=None):
     """
     Predict drought class from a DataFrame containing
@@ -46,7 +55,7 @@ def predict_drought(input_data, bundle=None):
 
     model = bundle["model"]
     label_encoder = bundle["label_encoder"]
-    features = bundle["features"]
+    features = get_model_features(bundle)
 
     if not isinstance(input_data, pd.DataFrame):
         raise TypeError("Input must be a pandas DataFrame.")
@@ -166,11 +175,11 @@ def load_nasa_power_data(data_dir):
         monthly_data,
         ignore_index=True
     )
-
     # Replace NASA missing-value indicator.
     combined["VALUE"] = combined["VALUE"].replace(
         -999, float("nan")
     )
+
     # Convert parameter names into separate columns.
     data = combined.pivot_table(
         index=[
@@ -207,7 +216,6 @@ def load_nasa_power_data(data_dir):
     return data
 
 
-def get_model_features(bundle=None):
 def prepare_nasa_features(data, bundle=None):
     """
     Prepare NASA POWER data using the same feature structure
@@ -311,16 +319,10 @@ def prepare_nasa_features(data, bundle=None):
         )
 
     # Return prepared data, including location and date columns.
-    return valid_data.reset_index(drop=True)    
-    """Return the exact feature names expected by the model."""
-
-    if bundle is None:
-        bundle = load_drought_model()
-
-    return bundle["features"]
+    return valid_data.reset_index(drop=True)
 
 
-if__name__== "main":
+if name == "main":
 
     bundle = load_drought_model()
 
@@ -333,4 +335,3 @@ if__name__== "main":
         start=1
     ):
         print(f"{index}. {feature}")
-    
