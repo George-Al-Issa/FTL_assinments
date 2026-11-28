@@ -17,7 +17,7 @@ def crop_suitability(field: FieldRecord, demo: bool) -> Result:
 def load_drought_data():
     """Load prepared NASA POWER data."""
 
-    data_path = Path(file).resolve().parent / "CroSafe_Predictions.csv"
+    data_path = Path(__file__).resolve().parent / "CroSafe_Predictions.csv"
 
     if not data_path.exists():
         raise FileNotFoundError(
