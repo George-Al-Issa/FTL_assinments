@@ -1,15 +1,27 @@
 """Public prediction interface for the CroSafe drought model."""
 
 import pandas as pd
-from models.drought_model import predict_drought
+
+from models.drought_model import (
+    load_drought_model,
+    predict_drought,
+    prepare_nasa_features,
+)
 
 
 def predict(input_data):
     """
     Predict drought class using the trained CroSafe model.
 
-    input_data must contain the exact 30 features used during training.
-    It can be a pandas DataFrame or a dictionary containing one record.
+    input_data can be a pandas DataFrame or a dictionary.
+
+    It can contain either:
+    - The 30 ready model features.
+    - Raw monthly NASA data with the required climate columns.
+
+    Returns:
+        A dictionary containing the latest drought class
+        and all predictions.
     """
 
     if isinstance(input_data, dict):
@@ -23,14 +35,47 @@ def predict(input_data):
     if input_data.empty:
         raise ValueError("Input data cannot be empty.")
 
-    predictions = predict_drought(input_data)
+    # Load the model bundle once.
+    bundle = load_drought_model()
+
+    features = bundle["features"]
+
+    # Check whether all trained features are already available.
+    has_ready_features = all(
+        feature in input_data.columns
+        for feature in features
+    )
+
+    if has_ready_features:
+        prepared_data = input_data.copy()
+    else:
+        # Prepare raw NASA monthly data.
+        prepared_data = prepare_nasa_features(
+            input_data,
+            bundle=bundle
+        )
+
+    if prepared_data.empty:
+        raise ValueError(
+            "No valid data available for prediction."
+        )
+
+    # Run model prediction.
+    predictions = predict_drought(
+        prepared_data,
+        bundle=bundle
+    )
 
     return {
-        "drought_class": predictions[0],
-        "forecast_horizon_months": 3
+        "drought_class": predictions[-1],
+        "all_predictions": predictions,
     }
 
 
-if__name__== "main":
+if name == "main":
     print("CroSafe drought prediction interface is ready.")
-    print("Provide a DataFrame with the 30 trained model features to predict.")
+
+    print(
+        "Provide a DataFrame with the 30 trained model features, "
+        "or raw monthly NASA data."
+    )
