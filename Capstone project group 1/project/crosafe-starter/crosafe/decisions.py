@@ -1,7 +1,10 @@
 """Decision entry points. Implementations can evolve independently of HTTP and SQL."""
 from .contracts import Assessment, FieldRecord, ForecastDay, Module, Result
 from .providers import WeatherProvider
-
+from functools import lru_cache
+from pathlib import Path
+import math
+import pandas as pd
 
 def crop_suitability(field: FieldRecord, demo: bool) -> Result:
     """George connects a versioned GAEZ v5 suitability adapter here."""
