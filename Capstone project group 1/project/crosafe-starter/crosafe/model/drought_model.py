@@ -322,7 +322,7 @@ def prepare_nasa_features(data, bundle=None):
     return valid_data.reset_index(drop=True)
 
 
-if__name__== "main":
+if__name__=="__main__":
 
     bundle = load_drought_model()
 
