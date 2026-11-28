@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 import math
 import pandas as pd
+from .predict import predict
 
 def crop_suitability(field: FieldRecord, demo: bool) -> Result:
     """George connects a versioned GAEZ v5 suitability adapter here."""
