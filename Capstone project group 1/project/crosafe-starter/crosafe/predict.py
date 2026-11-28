@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from models.drought_model import (
+from model.drought_model import (
     load_drought_model,
     predict_drought,
     prepare_nasa_features,
