@@ -33,13 +33,13 @@ class ForecastDay(BaseModel):
     min_temperature_c: float | None = None
     precipitation_mm: float | None
 
-
 class Result(BaseModel):
     module: Module
     status: Literal["demo", "unavailable", "ready"]
     source: str | None = None
     message: str
     crop_codes: list[str] = Field(default_factory=list)
+    drought_class: str | None = None
 
 
 class Assessment(BaseModel):
