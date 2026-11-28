@@ -72,10 +72,10 @@ def predict(input_data):
     }
 
 
-if__name__== "main":
-    print("CroSafe drought prediction interface is ready.")
+    if __name__ == "__main__":
+         print("CroSafe drought prediction interface is ready.")
 
-    print(
-        "Provide a DataFrame with the 30 trained model features, "
-        "or raw monthly NASA data."
+         print(
+              "Provide a DataFrame with the 30 trained model features, "
+              "or raw monthly NASA data."
     )
